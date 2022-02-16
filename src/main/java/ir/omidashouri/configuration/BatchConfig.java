@@ -1,68 +1,63 @@
 package ir.omidashouri.configuration;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
 @Configuration
 @EnableBatchProcessing
-public class BatchConfig {
+@RequiredArgsConstructor
+public class BatchConfig extends DefaultBatchConfigurer {
 
 
-     @Bean
-    @ConfigurationProperties("spring.batch")
-    public DataSourceProperties batchDataSourceProperties() {
-        return new DataSourceProperties();
-    }
+    private final PlatformTransactionManager transactionManager;
+    private final DataSource dataSource;
 
-   @Bean
-    public DataSource dataSource(DataSourceProperties batchDataSourceProperties) {
-         return batchDataSourceProperties.initializeDataSourceBuilder()
-        .build();
-    }
-
-/*    @Bean
-    @ConfigurationProperties(prefix = "spring.batch.datasource")
-    public DataSource dataSourceBatch(){
-        return DataSourceBuilder.create().build();
-    }*/
-
-    private PlatformTransactionManager transactionManager(){
-        return new ResourcelessTransactionManager();
-    }
-    private JobRepository jobRepository() throws Exception {
+    @Override
+    protected JobRepository createJobRepository() throws Exception {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
-        factory.setDataSource(this.dataSource(batchDataSourceProperties()));
-        factory.setTransactionManager(transactionManager());
+        factory.setDataSource(this.dataSource);
+        factory.setTransactionManager(this.transactionManager);
         factory.setIsolationLevelForCreate("ISOLATION_READ_COMMITTED");
         factory.setTablePrefix("SPRINGBATCH.BATCH_");
-        factory.setDatabaseType("ORACLE");
         factory.setMaxVarCharLength(1000);
+        factory.afterPropertiesSet();
         return factory.getObject();
     }
 
-    @Bean
-    public JobLauncher jobLauncherBatch() throws Exception{
+    @Override
+    protected JobLauncher createJobLauncher() throws Exception {
         SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
-        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
-        jobLauncher.setJobRepository(this.jobRepository());
+        jobLauncher.setJobRepository(this.createJobRepository());
+//        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        jobLauncher.afterPropertiesSet();
         return jobLauncher;
+    }
+
+    @Override
+    protected JobExplorer createJobExplorer() throws Exception {
+        JobExplorerFactoryBean jobExplorerFactoryBean = new JobExplorerFactoryBean();
+        jobExplorerFactoryBean.setDataSource(this.dataSource);
+        jobExplorerFactoryBean.setTablePrefix("SPRINGBATCH.BATCH_");
+        jobExplorerFactoryBean.afterPropertiesSet();
+        return jobExplorerFactoryBean.getObject();
     }
 
     @Bean
     public JobBuilderFactory customJobBuilderFactory() throws Exception {
-        return new JobBuilderFactory(this.jobRepository());
+        return new JobBuilderFactory(this.createJobRepository());
     }
+
 }
