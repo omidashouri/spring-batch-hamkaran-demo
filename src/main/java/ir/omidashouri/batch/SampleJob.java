@@ -33,7 +33,7 @@ public class SampleJob {
     private final SecondTasklet secondTasklet;
 
 
-//    @Bean
+    @Bean
     public Job firstJob() {
         return this.customJobBuilderFactory.get("First Job")
                 .incrementer(new RunIdIncrementer())
