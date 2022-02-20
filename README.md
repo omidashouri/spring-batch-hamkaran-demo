@@ -1,6 +1,24 @@
 # spring-batch-hamkaran-demo
 spring batch hamkaran demo
 
+
+
+---------------------------------------
+
+Job (Job_Instance..., Job_Execution... ) → Step(Step_Execution..., Step_Execution_Context...) → Tasklet
+                                         → Step(Item Reader, Item Processor, Item Writer) 
+                                            ↘ (or: Chunk Step, each step has item reader and item processor and item writer)
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------
 
 create user SPRINGBATCH identified by SPRINGBATCH;
