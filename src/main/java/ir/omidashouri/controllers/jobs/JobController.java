@@ -1,6 +1,11 @@
 package ir.omidashouri.controllers.jobs;
 
+import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranFinancialResponseMapper;
+import ir.omidashouri.models.dto.hamkaran.HamkaranFinancialResponseDto;
 import ir.omidashouri.models.request.jobs.JobParamRequest;
+import ir.omidashouri.models.response.hamkaran.v1.HamkaranData;
+import ir.omidashouri.models.response.hamkaran.v1.HamkaranFinancialResponse;
+import ir.omidashouri.services.hamkaran.HamkaranService;
 import ir.omidashouri.services.jobs.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
@@ -18,6 +23,8 @@ public class JobController {
 
     private final JobService jobService;
     private final JobOperator jobOperator;
+    private final HamkaranService hamkaranService;
+    private final HamkaranFinancialResponseMapper hamkaranFinancialResponseMapper;
 
     //    localhost:8080/api/job/start/firstJob
     @GetMapping("/start/{jobName}")
@@ -55,5 +62,17 @@ public class JobController {
     public String stopJob(@PathVariable Long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
         jobOperator.stop(executionId);
         return "Job Stopped ...";
+    }
+
+
+    public List<HamkaranData> getMaliService(){
+        HamkaranFinancialResponse hamkaranFinancialResponse;
+        HamkaranFinancialResponseDto hamkaranFinancialResponseDto = new HamkaranFinancialResponseDto();
+        hamkaranFinancialResponseDto.setSearchQuery("limit=50&salemali=1400");
+        hamkaranFinancialResponseDto = hamkaranService.searchHamkaranFinancialResponseBySearchQuery(hamkaranFinancialResponseDto);
+        hamkaranFinancialResponse = hamkaranFinancialResponseMapper.hamkaranFinancialResponseDtoToHamkaranFinancialResponse(hamkaranFinancialResponseDto);
+
+//        todo: handle iteration to get all the records
+        return hamkaranFinancialResponse.getData();
     }
 }
