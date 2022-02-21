@@ -48,11 +48,16 @@ public class BatchConfig extends DefaultBatchConfigurer {
 
     @Override
     protected JobExplorer createJobExplorer() throws Exception {
+        return this.jobExplorerFactoryBean().getObject();
+    }
+
+    @Bean
+    public JobExplorerFactoryBean jobExplorerFactoryBean() throws Exception {
         JobExplorerFactoryBean jobExplorerFactoryBean = new JobExplorerFactoryBean();
         jobExplorerFactoryBean.setDataSource(this.dataSource);
         jobExplorerFactoryBean.setTablePrefix("SPRINGBATCH.BATCH_");
         jobExplorerFactoryBean.afterPropertiesSet();
-        return jobExplorerFactoryBean.getObject();
+        return jobExplorerFactoryBean;
     }
 
     @Bean
@@ -60,4 +65,15 @@ public class BatchConfig extends DefaultBatchConfigurer {
         return new JobBuilderFactory(this.createJobRepository());
     }
 
+/*    @Bean
+    public JobOperator jobOperator() throws Exception {
+        SimpleJobOperator jobOperator = new SimpleJobOperator();
+
+        this.createJobExplorer().getJobNames();
+        jobOperator.setJobExplorer(this.createJobExplorer());
+        jobOperator.setJobLauncher(this.createJobLauncher());
+        jobOperator.setJobRegistry(new MapJobRegistry());
+        jobOperator.setJobRepository(this.createJobRepository());
+        return jobOperator;
+    }*/
 }
