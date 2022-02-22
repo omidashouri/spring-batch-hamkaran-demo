@@ -3,13 +3,11 @@ package ir.omidashouri.services.hamkaran;
 
 import ir.omidashouri.mapper.hamkaran.HamkaranAuthenticationTokenResponseMapper;
 import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranDataVoucherListItemsApiDtoMapper;
-import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranDataVoucherListItemsApiDtoMapperImpl;
 import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranDeletedFinancialResponseMapper;
 import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranFinancialResponseMapper;
 import ir.omidashouri.models.dto.hamkaran.HamkaranAuthenticationTokenDto;
 import ir.omidashouri.models.dto.hamkaran.HamkaranDeletedFinancialResponseDto;
 import ir.omidashouri.models.dto.hamkaran.HamkaranFinancialResponseDto;
-import ir.omidashouri.models.dto.mainparts.VoucherListItemsApiDto;
 import ir.omidashouri.models.response.hamkaran.v1.HamkaranAuthenticationTokenResponse;
 import ir.omidashouri.models.response.hamkaran.v1.HamkaranData;
 import ir.omidashouri.models.response.hamkaran.v1.HamkaranDeletedFinancialResponse;
@@ -26,8 +24,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -41,8 +37,9 @@ public class HamkaranServiceImpl implements HamkaranService {
     private final HamkaranCredential hamkaranCredential;
     private final RestTemplate restTemplate;
 
+//    todo: check final cause error
+    List<HamkaranData> hamkaranDataz;
     private final HamkaranDataVoucherListItemsApiDtoMapper hamkaranDataVoucherListItemsApiDtoMapper;
-    private final List<HamkaranData> hamkaranDataz = new ArrayList<>();
 
     @Override
     public HamkaranAuthenticationTokenDto getToken(HamkaranAuthenticationTokenDto hamkaranAuthenticationTokenDto) {
@@ -94,25 +91,50 @@ public class HamkaranServiceImpl implements HamkaranService {
 //todo: record count
 //    todo:save in a list
 //    todo: get single record
+    @Override
     public List<HamkaranData> getHamkaranDataFromService(String limit){
 
         List<HamkaranData> hamkaranDataList = new ArrayList<>();
+        hamkaranDataz = new ArrayList<>();
 
         HamkaranFinancialResponseDto hamkaranFinancialResponseDto = new HamkaranFinancialResponseDto();
         hamkaranFinancialResponseDto.setSearchQuery("limit="+limit);
         hamkaranFinancialResponseDto = this.searchHamkaranFinancialResponseBySearchQuery(hamkaranFinancialResponseDto);
-        hamkaranDataList = hamkaranFinancialResponseDto
+        int count = hamkaranFinancialResponseDto
                 .getVoucherListItemsApiDtos()
                 .stream()
-                .map(vli -> new HamkaranDataVoucherListItemsApiDtoMapperImpl().voucherListItemsApiToHamkaranData(vli))
-                .collect(Collectors.toList());
+//                .map(vli -> new HamkaranDataVoucherListItemsApiDtoMapperImpl().voucherListItemsApiToHamkaranData(vli))
+                .map(hamkaranDataVoucherListItemsApiDtoMapper::voucherListItemsApiToHamkaranData)
+                .map(hamkaranDataList::add)
+                .map(flag->Boolean.compare(flag, Boolean.TRUE) + 1)
+                .reduce(0, Integer::sum);
+/*                .map(b->b.toString())
+                .mapToInt(Integer::valueOf)
+                .reduce(0,Integer::sum);*/
+        System.out.println("recorde added → "+count);
 
-        return hamkaranDataList;
+        hamkaranDataz.addAll(hamkaranDataList);
+
+        return hamkaranDataz;
     }
 
+    @Override
+    public HamkaranData getHamkaranDataForJob(String limit){
+        if(hamkaranDataz==null){
+            this.getHamkaranDataFromService(limit);
+        }
 
-    Function<Object, VoucherListItemsApiDto> streamListFunction =
-            sv -> (VoucherListItemsApiDto) sv;
+        if(hamkaranDataz !=null && !hamkaranDataz.isEmpty()){
+            return hamkaranDataz.remove(0);
+        }
+
+        if(hamkaranDataz.size()==0){
+            hamkaranDataz = null;
+        }
+
+        return null;
+    }
+
 
     @Override
     public HamkaranDeletedFinancialResponseDto searchHamkaranDeletedFinancialResponseBySearchQuery(HamkaranDeletedFinancialResponseDto hamkaranDeletedFinancialResponseDto) {

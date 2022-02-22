@@ -8,6 +8,7 @@ import ir.omidashouri.batch.jobs.FirstJobListener;
 import ir.omidashouri.batch.steps.FirstStepListener;
 import ir.omidashouri.batch.tasklets.SecondTasklet;
 import ir.omidashouri.models.dto.hamkaran.HamkaranFinancialResponseDto;
+import ir.omidashouri.models.response.hamkaran.v1.HamkaranData;
 import ir.omidashouri.services.hamkaran.HamkaranService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -130,23 +131,23 @@ public class SampleJob {
 
     private Step secondChunkStep() {
         return stepBuilderFactory.get("First Chunk Step")
-                .<HamkaranFinancialResponseDto, HamkaranFinancialResponseDto>chunk(3)
+                .<HamkaranData, HamkaranData>chunk(20)
                 .reader(itemReaderAdapter())
 //                .processor(firstItemProcessor)
                 .writer(hamkaranItemWriter)
                 .build();
     }
 
-    public ItemReaderAdapter<HamkaranFinancialResponseDto> itemReaderAdapter() {
+    public ItemReaderAdapter<HamkaranData> itemReaderAdapter() {
 
         HamkaranFinancialResponseDto hamkaranFinancialResponseDto = new HamkaranFinancialResponseDto();
         hamkaranFinancialResponseDto.setSearchQuery("limit=50&salemali=1400");
 
-        ItemReaderAdapter<HamkaranFinancialResponseDto> itemReaderAdapterHFRD =
+        ItemReaderAdapter<HamkaranData> itemReaderAdapterHFRD =
                 new ItemReaderAdapter<>();
         itemReaderAdapterHFRD.setTargetObject(hamkaranService);
-        itemReaderAdapterHFRD.setTargetMethod("searchHamkaranFinancialResponseBySearchQuery");
-        itemReaderAdapterHFRD.setArguments(new Object[]{1,hamkaranFinancialResponseDto});
+        itemReaderAdapterHFRD.setTargetMethod("getHamkaranDataForJob");
+        itemReaderAdapterHFRD.setArguments(new Object[]{1,"50"});
 
         return itemReaderAdapterHFRD;
 //            searchHamkaranFinancialResponseBySearchQuery
