@@ -24,6 +24,8 @@ public class JobService {
     private final Job firstJob;
     @Qualifier("secondJob")
     private final Job secondJob;
+    @Qualifier("thirdJob")
+    private final Job thirdJob;
 
     @Async
     public void startJob(String jobName) {
@@ -38,6 +40,8 @@ public class JobService {
                 jobExecution = jobLauncher.run(firstJob, jobParameters);
             } else if (jobName.equals("secondJob")) {
                 jobExecution = jobLauncher.run(secondJob, jobParameters);
+            }else if (jobName.equals("thirdJob")) {
+                jobExecution = jobLauncher.run(thirdJob, jobParameters);
             }
             System.out.println("job Execution ID: " + jobExecution.getId());
 
@@ -68,6 +72,8 @@ public class JobService {
                 jobExecution = jobLauncher.run(firstJob, jobParameters);
             } else if (jobName.equals("secondJob")) {
                 jobExecution = jobLauncher.run(secondJob, jobParameters);
+            } else if(jobName.equals("thirdJob")){
+                jobExecution = jobLauncher.run(thirdJob, jobParameters);
             }
             System.out.println("job Execution ID: " + jobExecution.getId());
 

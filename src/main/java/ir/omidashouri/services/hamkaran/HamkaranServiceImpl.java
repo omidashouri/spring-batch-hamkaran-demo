@@ -1,13 +1,17 @@
 package ir.omidashouri.services.hamkaran;
 
 
-import ir.omidashouri.assemblers.mainparts.hamkaran.HamkaranDeletedFinancialResponseMapper;
-import ir.omidashouri.assemblers.mainparts.hamkaran.HamkaranFinancialResponseMapper;
 import ir.omidashouri.mapper.hamkaran.HamkaranAuthenticationTokenResponseMapper;
+import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranDataVoucherListItemsApiDtoMapper;
+import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranDataVoucherListItemsApiDtoMapperImpl;
+import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranDeletedFinancialResponseMapper;
+import ir.omidashouri.mapper.mainparts.hamkaran.HamkaranFinancialResponseMapper;
 import ir.omidashouri.models.dto.hamkaran.HamkaranAuthenticationTokenDto;
 import ir.omidashouri.models.dto.hamkaran.HamkaranDeletedFinancialResponseDto;
 import ir.omidashouri.models.dto.hamkaran.HamkaranFinancialResponseDto;
+import ir.omidashouri.models.dto.mainparts.VoucherListItemsApiDto;
 import ir.omidashouri.models.response.hamkaran.v1.HamkaranAuthenticationTokenResponse;
+import ir.omidashouri.models.response.hamkaran.v1.HamkaranData;
 import ir.omidashouri.models.response.hamkaran.v1.HamkaranDeletedFinancialResponse;
 import ir.omidashouri.models.response.hamkaran.v1.HamkaranFinancialResponse;
 import ir.omidashouri.security.HamkaranCredential;
@@ -19,7 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,6 +40,9 @@ public class HamkaranServiceImpl implements HamkaranService {
     private final HamkaranDeletedFinancialResponseMapper hamkaranDeletedFinancialResponseMapper;
     private final HamkaranCredential hamkaranCredential;
     private final RestTemplate restTemplate;
+
+    private final HamkaranDataVoucherListItemsApiDtoMapper hamkaranDataVoucherListItemsApiDtoMapper;
+    private final List<HamkaranData> hamkaranDataz = new ArrayList<>();
 
     @Override
     public HamkaranAuthenticationTokenDto getToken(HamkaranAuthenticationTokenDto hamkaranAuthenticationTokenDto) {
@@ -79,6 +90,29 @@ public class HamkaranServiceImpl implements HamkaranService {
 
         return hamkaranFinancialResponseDto;
     }
+
+//todo: record count
+//    todo:save in a list
+//    todo: get single record
+    public List<HamkaranData> getHamkaranDataFromService(String limit){
+
+        List<HamkaranData> hamkaranDataList = new ArrayList<>();
+
+        HamkaranFinancialResponseDto hamkaranFinancialResponseDto = new HamkaranFinancialResponseDto();
+        hamkaranFinancialResponseDto.setSearchQuery("limit="+limit);
+        hamkaranFinancialResponseDto = this.searchHamkaranFinancialResponseBySearchQuery(hamkaranFinancialResponseDto);
+        hamkaranDataList = hamkaranFinancialResponseDto
+                .getVoucherListItemsApiDtos()
+                .stream()
+                .map(vli -> new HamkaranDataVoucherListItemsApiDtoMapperImpl().voucherListItemsApiToHamkaranData(vli))
+                .collect(Collectors.toList());
+
+        return hamkaranDataList;
+    }
+
+
+    Function<Object, VoucherListItemsApiDto> streamListFunction =
+            sv -> (VoucherListItemsApiDto) sv;
 
     @Override
     public HamkaranDeletedFinancialResponseDto searchHamkaranDeletedFinancialResponseBySearchQuery(HamkaranDeletedFinancialResponseDto hamkaranDeletedFinancialResponseDto) {

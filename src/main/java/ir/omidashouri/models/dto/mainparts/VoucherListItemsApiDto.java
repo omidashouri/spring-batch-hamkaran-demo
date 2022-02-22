@@ -85,4 +85,44 @@ public class VoucherListItemsApiDto implements Serializable {
 
     private String searchQuery;
 
+    @Override
+    public String toString() {
+        return "VoucherListItemsApiDto{" +
+                "idApi=" + idApi +
+                ", publicId='" + publicId + '\'' +
+                ", tarh='" + tarh + '\'' +
+                ", sanad=" + sanad +
+                ", atf=" + atf +
+                ", moein=" + moein +
+                ", codeTafzil='" + codeTafzil + '\'' +
+                ", dl6=" + dl6 +
+                ", sharh='" + sharh + '\'' +
+                ", bestankar=" + bestankar +
+                ", bedehkar=" + bedehkar +
+                ", tarikhSanad='" + tarikhSanad + '\'' +
+                ", tarikhMiladi='" + tarikhMiladi + '\'' +
+                ", tarikhMiladiTs=" + tarikhMiladiTs +
+                ", eslahiHazfi=" + eslahiHazfi +
+                ", saderKonande='" + saderKonande + '\'' +
+                ", akharinVirayeshConande='" + akharinVirayeshConande + '\'' +
+                ", saleMali='" + saleMali + '\'' +
+                ", lastCreateDate='" + lastCreateDate + '\'' +
+                ", lastEditDate='" + lastEditDate + '\'' +
+                ", lastCreateDateMiladi='" + lastCreateDateMiladi + '\'' +
+                ", lastCreateDateMiladiTs=" + lastCreateDateMiladiTs +
+                ", lastEditDateMiladi='" + lastEditDateMiladi + '\'' +
+                ", lastEditDateMiladiTs=" + lastEditDateMiladiTs +
+                ", voucherNumber=" + voucherNumber +
+                ", voucherSequence=" + voucherSequence +
+                ", voucherDailyNumber=" + voucherDailyNumber +
+                ", fiscalYearRef=" + fiscalYearRef +
+                ", fiscalYear=" + fiscalYear +
+                ", createDateTs=" + createDateTs +
+                ", editDateTs=" + editDateTs +
+                ", deleteDateTs=" + deleteDateTs +
+                ", voucherDeleteItemsId=" + voucherDeleteItemsId +
+                ", recordStatus=" + recordStatus +
+                ", searchQuery='" + searchQuery + '\'' +
+                '}';
+    }
 }
