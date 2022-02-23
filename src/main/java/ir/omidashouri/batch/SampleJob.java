@@ -126,6 +126,7 @@ public class SampleJob {
         return this.customJobBuilderFactory.get("Third Job")
                 .incrementer(new RunIdIncrementer())
                 .start(this.secondChunkStep())
+//                .flow(secondChunkStep(this.itemReaderAdapter(hamkaranService)))
                 .build();
     }
 
